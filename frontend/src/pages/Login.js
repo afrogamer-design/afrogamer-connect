@@ -1,39 +1,51 @@
-import React, { useState } from "react";
-import supabase from "../supabaseClient";
+// frontend/src/pages/Login.js
+import React, { useState } from 'react';
+import { supabase } from '../supabaseClient';
 
-function Login() {
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1);
+const Login = () => {
+  const [phone, setPhone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  async function handleSendOtp() {
-    const { error } = await supabase.auth.signInWithOtp({ phone });
-    if (error) console.error(error.message);
-    else setStep(2);
-  }
-
-  async function handleVerifyOtp() {
-    const { error } = await supabase.auth.verifyOtp({ phone, token: otp, type: "sms" });
-    if (error) console.error(error.message);
-    else window.location.href = "/dashboard";
-  }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: phone,
+      });
+      
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage('OTP sent to your phone!');
+      }
+    } catch (error) {
+      setMessage('Error sending OTP');
+    }
+    
+    setLoading(false);
+  };
 
   return (
-    <div className="login">
-      <h2>Login</h2>
-      {step === 1 ? (
-        <>
-          <input type="text" placeholder="Enter phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          <button onClick={handleSendOtp}>Send OTP</button>
-        </>
-      ) : (
-        <>
-          <input type="text" placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
-          <button onClick={handleVerifyOtp}>Verify OTP</button>
-        </>
-      )}
+    <div className="login-container">
+      <h2>Login with Phone</h2>
+      <form onSubmit={handleLogin}>
+        <input
+          type="tel"
+          placeholder="Phone number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Sending...' : 'Send OTP'}
+        </button>
+      </form>
+      {message && <p>{message}</p>}
     </div>
   );
-}
+};
 
 export default Login;
