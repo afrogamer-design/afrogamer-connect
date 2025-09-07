@@ -1,23 +1,16 @@
-import express from "express";
-import cors from "cors";
-import authRoutes from "./routes/auth.js";
-import userRoutes from "./routes/users.js";
-import gameRoutes from "./routes/games.js";
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config(); // Loads environment variables from .env file
 
 const app = express();
+const PORT = process.env.PORT || 3001; // <- CRITICAL: Use Render's port or default to 3001
+
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/games", gameRoutes);
+// ... your other code (routes, etc.) ...
 
-// Health check
-app.get("/", (req, res) => {
-  res.json({ status: "Backend running 🚀" });
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-// Render will inject PORT automatically
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
